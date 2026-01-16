@@ -69,12 +69,22 @@ internal class BodyCleaner {
         val cleanedDocument = cleaner.clean(dirtyDocument)
         copyDocumentType(dirtyDocument, cleanedDocument)
         copyBodyAttributes(dirtyDocument, cleanedDocument)
+        removeStyleTagsFromAnchors(cleanedDocument)
         return cleanedDocument
     }
 
     private fun copyDocumentType(dirtyDocument: Document, cleanedDocument: Document) {
         dirtyDocument.documentType()?.let { documentType ->
             cleanedDocument.insertChildren(0, documentType)
+        }
+    }
+
+    private fun removeStyleTagsFromAnchors(document: Document) {
+        document.select("a style").forEach { aStyle ->
+            val a = aStyle.closest("a") ?: return@forEach
+            val html = aStyle.outerHtml()
+            aStyle.remove()
+            a.before(html)
         }
     }
 

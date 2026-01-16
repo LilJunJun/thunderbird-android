@@ -9,6 +9,27 @@ class HtmlSanitizerTest {
     private val htmlSanitizer = HtmlSanitizer()
 
     @Test
+    fun shouldRemoveStyleTagsFromAnchors() {
+       val html = """
+            <html>
+            <head></head>
+            <body>
+            <a href = "https://example.com/">
+                <style>.x{color:#00f}</style>
+                <span>A link text</span>
+            </a>
+            </body>
+            </html>
+            """.compactHtml()
+
+        val result = htmlSanitizer.sanitize(html)
+
+        assertThat(result.select("a style").size).isEqualTo(0)
+        assertThat(result.select("body > style").size).isEqualTo(1)
+        assertThat(result.select("a").text()).isEqualTo("A link text")
+    }
+
+    @Test
     fun shouldRemoveMetaRefreshInHead() {
         val html =
             """
